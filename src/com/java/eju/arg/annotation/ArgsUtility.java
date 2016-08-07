@@ -17,6 +17,7 @@
 package com.java.eju.arg.annotation;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -72,27 +73,57 @@ public interface ArgsUtility {
                     if (type.isAssignableFrom(boolean.class) || type.isAssignableFrom(Boolean.class)) {
                         field.set(null, !(Boolean) field.get(null));
                     } else {
+
                         String value = args[++i];
+                        Object valueObj;
+
                         if (type.isAssignableFrom(String.class))
-                            field.set(null, value);
+                            valueObj = value;
                         else if (type.isAssignableFrom(int.class) || type.isAssignableFrom(Integer.class))
-                            field.set(null, Integer.parseInt(value));
+                            valueObj = Integer.parseInt(value);
                         else if (type.isAssignableFrom(double.class) || type.isAssignableFrom(Double.class))
-                            field.set(null, Double.parseDouble(value));
+                            valueObj = Double.parseDouble(value);
                         else if (type.isAssignableFrom(long.class) || type.isAssignableFrom(Long.class))
-                            field.set(null, Long.parseLong(value));
+                            valueObj = Long.parseLong(value);
                         else if (type.isAssignableFrom(float.class) || type.isAssignableFrom(Float.class))
-                            field.set(null, Float.parseFloat(value));
-                        else throw new IllegalArgumentException();
+                            valueObj = Float.parseFloat(value);
+                        else throw new IllegalArgumentException("Bad type param.");
+
+                        if(!annotation.check().isEmpty()){
+
+                            /* maven:  pl.joegreen:lambda-from-string:1.3
+
+                            String checker = annotation.check();
+                            LambdaFactory lambdaFactory = LambdaFactory.get();
+                            Predicate<Object> func = lambdaFactory.createLambda(checker, new TypeReference<Predicate<Object>>() {
+                            });
+                            if(!func.test(valueObj))
+                                throw new IllegalArgumentException("Bad input for arg: " + arg + ", please see description.");
+                            */
+
+                            String checker = annotation.check();
+                            Method method = cl.getDeclaredMethod(checker,field.getType());
+                            if(method!=null){
+                                method.setAccessible(true);
+                                if(!(boolean)method.invoke(null,valueObj))
+                                    throw new IllegalArgumentException("Bad input for arg: " + arg + ", please see description.");
+                            }
+
+                        }
+
+                        field.set(null, valueObj);
+
                     }
-                } else throw new IllegalArgumentException();
+                } else throw new IllegalArgumentException("Bad input. Any option found for arg: " + arg);
             }
 
-            if (nRequired > 0) throw new IllegalArgumentException();
+            if (nRequired > 0)
+                throw new IllegalArgumentException("Missing " + nRequired + " required field");
 
         } catch (Exception e) {
             printInfo(cl);
             printUsage(cl);
+            System.out.println("Error: " + e.getMessage());
             System.exit(-1);
         }
 

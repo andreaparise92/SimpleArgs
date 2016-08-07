@@ -18,8 +18,10 @@
 
 package com.java.eju.arg.annotation;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
@@ -37,6 +39,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
 public @interface Arg {
 
     /**
@@ -61,5 +64,13 @@ public @interface Arg {
      * @return True if argument is required, false otherwise
      */
     boolean required() default false;
+
+    /**
+     *
+     * Method to check if input is valid
+     *
+     * @return Name of checker method
+     */
+    String check() default "";
 
 }

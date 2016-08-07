@@ -25,6 +25,7 @@ the program will terminate with an error and will print in output its usage.
     key = "key",
     description = "description",
     required = true|false         //default false
+    check = "checker method"
 )
 
 ```
@@ -87,7 +88,7 @@ This is a sample application:
       @Arg(key = "u",description = "Your username", required = true)
       private static String username;
 
-      @Arg(key = "p",description = "Your password", required = true)
+      @Arg(key = "p",description = "Your password (>7)", required = true, check = "checkPassword")
       private static String password;
 
       @Arg(key = "n",description = "Your name")
@@ -95,6 +96,10 @@ This is a sample application:
 
       @Arg(key = "s",description = "False to run silent")
       private static Boolean print = true;
+
+      private static boolean checkPassword(String password){
+          return password.length()>8;
+      }
 
       public static void print() {
           String out =  "MySimpleApplication{" +
@@ -132,7 +137,7 @@ Description: Sample application for test.
 Usage: java -jar MySampleApplication.jar -u <value> -p <value> [-options]
 options:
 -u or --username <value>   Your username
--p or --password <value>   Your password
+-p or --password <value>   Your password (>7)
 -n or --name <value>       Your name
 -s or --print              False to run silent
 

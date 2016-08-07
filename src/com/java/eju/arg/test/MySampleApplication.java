@@ -41,7 +41,7 @@ public class MySampleApplication{
     @Arg(key = "u",description = "Your username", required = true)
     private static String username;
 
-    @Arg(key = "p",description = "Your password", required = true)
+    @Arg(key = "p",description = "Your password (>7)", required = true, check = "checkPassword")
     private static String password;
 
     @Arg(key = "n",description = "Your name")
@@ -49,6 +49,10 @@ public class MySampleApplication{
 
     @Arg(key = "s",description = "False to run silent")
     private static Boolean print = true;
+
+    private static boolean checkPassword(String password){
+        return password.length()>8;
+    }
 
     public static void print() {
         String out =  "Your bind parameters:{" +
